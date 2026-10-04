@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import com.example.demo.Dto.EmployeeDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.demo.Exception.ResourceNotFound;
 
 import java.util.*;
 import java.util.Optional;
@@ -26,14 +27,7 @@ public class Student {
     public ResponseEntity<?> getemp(@PathVariable Long emp_id)
     {
         Optional<EmployeeDto> employeeDto = studentService.getStudentName(emp_id);
-        if(employeeDto.isPresent())
-        {
-            return ResponseEntity.ok(employeeDto.get());
-        }
-        else
-        {
-            return ResponseEntity.status(404).body("Employee not found");
-        }
+        return ResponseEntity.ok(employeeDto.get());
     }
 
     @PostMapping

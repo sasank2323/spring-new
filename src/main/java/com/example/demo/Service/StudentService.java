@@ -2,6 +2,7 @@ package com.example.demo.Service;
 
 import com.example.demo.Dto.EmployeeDto;
 import com.example.demo.Entity.Student;
+import com.example.demo.Exception.ResourceNotFound;
 import com.example.demo.Repository.StudentRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,10 @@ public class StudentService {
     }
 
     public Optional<EmployeeDto> getStudentName(Long emp_id) {
-      Optional<Student> s = studentRepository.findById(1L);
-      if(s==null)
+      Optional<Student> s = studentRepository.findById(emp_id);
+      if(s.isEmpty())
       {
-          return Optional.empty();
+          throw new ResourceNotFound("Employee not found testing");
       }
       EmployeeDto  e= new ModelMapper().map(s, EmployeeDto.class);
         return Optional.of(e);
