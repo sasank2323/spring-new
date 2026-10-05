@@ -12,17 +12,26 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+
+    private ResponseEntity<ApiResponse<?>> buildErrorResponse(ApiError apierror)
+    {
+        return ResponseEntity
+                .status(apierror.getStatus())
+                .body(new ApiResponse<>(apierror));
+    }
+
+
     @ExceptionHandler(ResourceNotFound.class)
-    public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFound e) {
+    public ResponseEntity<ApiResponse<?>> handleResourceNotFound(ResourceNotFound e) {
         ApiError apiError = ApiError.builder()
                 .message(e.getMessage())
                 .status(404)
                 .build();
-        return ResponseEntity.status(404).body(apiError);
+        return buildErrorResponse(apiError);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
+    public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
        List<String> errorMessages = e.getBindingResult()
                 .getAllErrors()
                 .stream()
@@ -32,15 +41,15 @@ public class GlobalExceptionHandler {
                 .message(errorMessages.toString())
                 .status(400)
                 .build();
-        return ResponseEntity.status(400).body(apiError);
+        return buildErrorResponse(apiError);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleException(Exception e) {
+    public ResponseEntity<ApiResponse<?>> handleException(Exception e) {
         ApiError apiError = ApiError.builder()
                 .message(e.getMessage())
                 .status(500)
                 .build();
-        return ResponseEntity.status(500).body(apiError);
+        return buildErrorResponse(apiError);
     }
 }
