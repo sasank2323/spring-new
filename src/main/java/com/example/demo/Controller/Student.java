@@ -1,11 +1,14 @@
 package com.example.demo.Controller;
 
+import com.example.demo.Advice.ApiResponse;
 import com.example.demo.Service.StudentService;
 import jakarta.validation.Valid;
 import com.example.demo.Dto.EmployeeDto;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.Exception.ResourceNotFound;
+import org.springframework.web.client.RestClient;
 
 import java.util.*;
 import java.util.Optional;
@@ -16,10 +19,12 @@ import java.util.Optional;
 public class Student {
 
     private  StudentService studentService;
+    private RestClient restClient;
 
-    Student(StudentService studentService)
+    Student(StudentService studentService, RestClient restClient)
     {
         this.studentService=studentService;
+        this.restClient=restClient;
     }
 
 
@@ -67,4 +72,31 @@ public class Student {
         return ResponseEntity.ok(employees);
     }
 
+    @GetMapping("/external")
+    public ResponseEntity<List<EmployeeDto>> getAllEmployeesByName() {
+//        try {
+           List<EmployeeDto> employees = restClient.get()
+                    .uri("/testingbeeceptor")
+                    .retrieve()
+                   .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),)
+                            response -> response.bodyToMono(String.class)
+                                    .map(errorMessage -> new RuntimeException("Failed to fetch employees from the external service: " + errorMessage))
+                    .body(new ParameterizedTypeReference<List<EmployeeDto>>() {
+                    });
+            return ResponseEntity.ok(employees);
+//        } catch (Exception e) {
+//            throw new RuntimeException("Failed to fetch employees from the external service", e);
+//        }
+    }
+
+    @PostMapping("/external")
+    public ResponseEntity<EmployeeDto> createEmployee(@RequestBody @Valid EmployeeDto employeeDto) {
+        EmployeeDto emp= restClient.post()
+                .uri("/testingbeeceptorpost")
+                .body(employeeDto)
+                .retrieve()
+                .body(EmployeeDto.class);
+         System.out.println(emp);
+        return ResponseEntity.ok(emp);
+    }
 }
