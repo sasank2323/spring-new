@@ -1,7 +1,9 @@
 package com.example.demo.Advice;
 
 import com.example.demo.Exception.ResourceNotFound;
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -44,6 +46,26 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(apiError);
     }
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<?>> handleAuthenticationException(AuthenticationException e) {
+        ApiError apiError = ApiError.builder()
+                .message(e.getMessage())
+                .status(401)
+                .build();
+        return ResponseEntity.status(401).body(new ApiResponse<>(apiError));
+    }
+
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ApiResponse<?>> handleJwtException(JwtException e) {
+        ApiError apiError = ApiError.builder()
+                .message("Invalid JWT token: " + e.getMessage())
+                .status(401)
+                .build();
+        return buildErrorResponse(apiError);
+    }
+
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleException(Exception e) {
         ApiError apiError = ApiError.builder()
@@ -52,4 +74,6 @@ public class GlobalExceptionHandler {
                 .build();
         return buildErrorResponse(apiError);
     }
+
+
 }
