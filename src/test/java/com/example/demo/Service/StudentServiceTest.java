@@ -2,11 +2,13 @@ package com.example.demo.Service;
 
 import com.example.demo.Dto.EmployeeDto;
 import com.example.demo.Entity.Student;
+import com.example.demo.Exception.ResourceNotFound;
 import com.example.demo.Repository.StudentRepository;
 import com.example.demo.TestContainerConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -18,6 +20,8 @@ import org.springframework.context.annotation.Import;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -70,6 +74,14 @@ class StudentServiceTest {
 
         when(studentRepository.save(any(Student.class))).thenReturn(student);
         EmployeeDto storedEmployee = studentService.storeEmployee(new EmployeeDto(student.getId(), student.getName(), student.getEmail(), student.getAge(), student.getDepartment()));
+
+        // ArgumentCaptor is used to capture the argument passed to the save method of studentRepository. It allows us to verify that the correct Student object was passed to the save method and also to assert its properties.
+        ArgumentCaptor<Student> studentArgumentCaptor = ArgumentCaptor.forClass(Student.class);
+        verify(studentRepository).save(studentArgumentCaptor.capture());
+        EmployeeDto capturedEmployeeDto = modelMapper.map(studentArgumentCaptor.getValue(), EmployeeDto.class);
+        assertEquals(capturedEmployeeDto.getId(), equalTo(student.getId()));
+
+
         assertNotNull(storedEmployee);
         assertEquals(student.getId(), storedEmployee.getId());
         assertEquals(student.getName(), storedEmployee.getName());
@@ -106,4 +118,37 @@ class StudentServiceTest {
     @Test
     void getAllEmployees() {
     }
+
+    @Test
+    void testGetStudentName_ThrowsResourceNotFoundException() {
+        Long studentId = 1L;
+        when(studentRepository.findById(studentId)).thenReturn(Optional.empty());
+        Exception exception = assertThrows(ResourceNotFound.class, () -> {
+            studentService.getStudentName(studentId);
+        });
+        String expectedMessage = "Employee not found testing";
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    void testDeleteEmployee_ThrowsRuntimeException() {
+        Long studentId = 1L;
+        when(studentRepository.findById(studentId)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> studentService.deleteEmployee(studentId))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Employee not found");
+    }
+
+    @Test
+    void testUpdateEmployee_ThrowsRuntimeException() {
+        Long studentId = 1L;
+        EmployeeDto employeeDto = new EmployeeDto(studentId, "John Doe", "john.doe@example.com", 30, "IT");
+        when(studentRepository.findById(studentId)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> studentService.updateEmployee(studentId, employeeDto))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Employee not found");
+    }
+
+
 }
