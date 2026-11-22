@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import com.example.demo.Entity.User;
+import com.example.demo.Service.AIservice;
 import com.example.demo.Service.JwtService;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,9 @@ public class Testing {
 
     @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private AIservice aiService;
 
     @Test
     public void testExample() {
@@ -29,6 +33,15 @@ public class Testing {
         // Assert that the extracted userId matches the original user's ID
         System.out.println("Generated Token: " + token);
         System.out.println("Extracted User ID: " + userId);
+    }
+
+
+    @Test
+    public void testAIService() {
+        String prompt = "Hello, how are you?";
+        String response = aiService.getAIResponse(prompt);
+        System.out.println("AI Response: " + response);
+        // Add assertions or test logic here to validate the AI response
     }
 
 
