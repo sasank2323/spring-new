@@ -44,5 +44,38 @@ public class Testing {
         // Add assertions or test logic here to validate the AI response
     }
 
+    @Test
+    public void testAIServiceWithDifferentPrompt() {
+        String prompt = "What is the capital of France?";
+        float[] response = aiService.getEmbedding(prompt);
+        System.out.println("AI Response: " + java.util.Arrays.toString(response));
+        // Add assertions or test logic here to validate the AI response
+    }
+
+
+    @Test
+    public void testStoreEmbedding() {
+        String text = "This is a sample text to store embedding.";
+        aiService.storeEmbedding(text);
+        System.out.println("Embedding stored for text: " + text);
+        // Add assertions or test logic here to validate the storage of the embedding
+    }
+
+    @Test
+    public void testSearchSimilarDocuments() {
+        String query = "sample text";
+        int topK = 5;
+        var results = aiService.searchSimilarDocuments(query, topK);
+        System.out.println("Search results for query: " + query);
+        results.forEach(doc -> System.out.println("Document: " + doc));
+        // Add assertions or test logic here to validate the search results
+    }
+
+    @Test
+    public void testIngestData() {
+        aiService.ingestData();
+        System.out.println("Data ingested successfully.");
+        // Add assertions or test logic here to validate the ingestion of data
+    }
 
 }

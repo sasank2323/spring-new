@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Import;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Import(TestContainerConfiguration.class)
+//@Import(TestContainerConfiguration.class)
 @DataJpaTest
 class DemoApplicationTests {
 
