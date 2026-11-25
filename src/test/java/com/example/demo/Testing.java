@@ -78,4 +78,18 @@ public class Testing {
         // Add assertions or test logic here to validate the ingestion of data
     }
 
+    @Test
+    public void testGetAIResponseWithStructuredOutput() {
+        String userInput = "Explain cosine similarity.";
+        String response = aiService.getAIResponseWithStructuredOutput(userInput);
+        System.out.println("AI Response with Structured Output: " + response);
+        // Add assertions or test logic here to validate the AI response with structured output
+    }
+
+    @Test
+    public void testAddPdf() {
+        aiService.addPdf();
+        System.out.println("PDF added successfully.");
+        // Add assertions or test logic here to validate the addition of the PDF
+    }
 }
